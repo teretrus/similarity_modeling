@@ -1,8 +1,8 @@
-function setup = SetupProject( base_path, pattern, training_set_ratio )
+function setup = SetupProject( base_path, training_set_ratio )
     fprintf('\nsetting up project\n');
     
     fprintf('    reading input-files..                           ');
-    [ setup.files, setup.people ] = ListFiles( base_path, pattern );  
+    [ setup.files, setup.people ] = ListFiles( base_path );  
     fprintf('  -> found %d samples (containing %d people)\n', length(setup.files), length(setup.people));
     
     
@@ -51,30 +51,36 @@ function [training_set, validation_set] = SplitSet(files, training_set_ratio)
     end
 end
 
-function [ files, people ] = ListFiles( base_path, pattern )
-    file_infos = dir(strcat(base_path,pattern));    
+function [ files, people ] = ListFiles( base_path )
+    file_infos = dir(base_path);    
     file_count = size(file_infos,1);
-
-    files = cell([file_count,1]);
     
     people = cell([0,1]);
     samples = zeros([0,1]);
+    files = cell([0,1]);
     
+    regex = '^(?<prefix>word)[-]E(?<code>[0-9]+)[-](?<example>[0-9]+)[-](?<person>[0-9]+)[-](?<gender>[fm])[-](?<age>[0-9]+)(?<ext>[.]wav)$';
+
+    file_i = 1;
     for i = 1 : file_count
-       files{i}.path = file_infos(i).name; 
        
-       r = regexp(files{i}.path, '^E([0-9][0-9])-([0-9])-([mw])-([0-9]+)', 'tokens');
-                     
-       files{i}.path = strcat(base_path,file_infos(i).name); 
-       files{i}.sample = str2num(r{1}{1}); %#ok<ST2NM>
-       files{i}.person = str2num(r{1}{2})+ 1; %#ok<ST2NM>
-       
-       people = RegisterPerson(people,files{i}.person,r{1}{3},str2num(r{1}{4})); %#ok<ST2NM>
-       
-       if (size(samples,1) >= files{i}.sample)
-           samples(files{i}.sample) = samples(files{i}.sample) + 1;
-       else
-           samples(files{i}.sample) = 1;
+       r = regexp(file_infos(i).name, regex, 'names');
+             
+       if (~isempty(r))
+           files{file_i}.path = file_infos(i).name; 
+           files{file_i}.path = strcat(base_path,file_infos(i).name); 
+           files{file_i}.sample = str2num(r.code); %#ok<ST2NM>
+           files{file_i}.person = str2num(r.person)+ 1; %#ok<ST2NM>
+
+           people = RegisterPerson(people,files{file_i}.person,r.gender,str2num(r.age)); %#ok<ST2NM>
+
+           if (size(samples,1) >= files{file_i}.sample)
+               samples(files{file_i}.sample) = samples(files{file_i}.sample) + 1;
+           else
+               samples(files{file_i}.sample) = 1;
+           end
+           
+           file_i = file_i + 1;
        end
     end
     
