@@ -3,12 +3,20 @@ function setup = SetupProject( base_path, training_set_ratio )
     
     fprintf('    reading input-files..                           ');
     [ setup.files, setup.people ] = ListFiles( base_path );  
-    fprintf('  -> found %d samples (containing %d people)\n', length(setup.files), length(setup.people));
+    
+    peopleCount = 0;
+    for i = 1 : length(setup.people)
+        if (~isempty(setup.people))
+            peopleCount = peopleCount + 1;
+        end
+    end
+    
+    fprintf('  -> found %d samples (containing %d people)\n', length(setup.files), peopleCount);
     
     
     fprintf('    splitting into training- and validation-set..   ');
     [setup.training_set, setup.validation_set] = SplitSet(setup.files, training_set_ratio);
-    fprintf('  -> %d training-sample, %d validation-samples\n', length(setup.training_set), length(setup.validation_set));
+    fprintf('  -> %d training-sample (~%d%%), %d validation-samples  (~%d%%)\n', length(setup.training_set), round(100*length(setup.training_set)/length(setup.files)), length(setup.validation_set), round(100*length(setup.validation_set)/length(setup.files)));
 end
 
 function [training_set, validation_set] = SplitSet(files, training_set_ratio)
