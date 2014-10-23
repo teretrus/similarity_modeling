@@ -3,7 +3,7 @@ function Main
     javaclasspath('lib\Weka\weka.jar');   
             
             
-    setup =     SetupProject('..\\audio samples\\', 0.7);
+    setup =     SetupProject('..\\audio samples\\', 0.5);
     %c =         Classifier(setup);
     %            ValidateClassifier(c, setup);
                 
