@@ -1,6 +1,6 @@
 ﻿[regex]$regex = "^((?<prefix>(phoneme)|(word))[-](?<code>[E][0-9]+)[-])?(?<example>[0-9]+)[-](?<person>[0-9]+)[-](?<gender>[fm])[-](?<age>[0-9]+)(?<ext>[.]wav)$";
 
-$files = ls | where { $regex.IsMatch($_.Name) };
+$files = (Get-ChildItem -Path . -Recurse) | where { $regex.IsMatch($_.Name) };
 [uint]$file_count = ($files | measure).Count;
 
 if ($file_count -eq 0) {
