@@ -1,18 +1,16 @@
 function Main
-    clear;
-    javaclasspath('lib\Weka\weka.jar');   
-            
-            
-    setup =     SetupProject('..\\audio samples\\', 0.5);
-    %c =         Classifier(setup);
-    %            ValidateClassifier(c, setup);
-                
-    %c =         WekaClassifier(setup, 'bayes.NaiveBayes');
-    %            ValidateClassifier(c, setup);
-                
-    c =         WekaClassifier(setup, 'functions.MultilayerPerceptron');
-                ValidateClassifier(c, setup);
-                               
-    clear; 
-    javarmpath('lib\Weka\weka.jar');      
+
+fprintf('######################################################################\n');
+fprintf('#                              Task 1                                #\n');
+fprintf('######################################################################\n');
+
+Task1;
+
+fprintf('######################################################################\n');
+fprintf('#                              Task 2                                #\n');
+fprintf('######################################################################\n');
+
+Task2;
+
 end
+

@@ -10,7 +10,7 @@ classdef WekaClassifier
     end
     
     methods 
-        function obj = WekaClassifier(setup, type)
+        function obj = WekaClassifier(setup, type, class_selector)
             obj.type = type;
             fprintf('\nbuilding classifier\n');
             
@@ -28,7 +28,7 @@ classdef WekaClassifier
             fprintf('    training classifier..\n');
             cleaner = use_weka; %#ok<NASGU>
             
-            obj.train = prepare_data('train', obj.features, obj.files);
+            obj.train = prepare_data('train', obj.features, class_selector, obj.files);
             
             
             obj.nb = trainWekaClassifier(obj.train,type);
@@ -36,7 +36,7 @@ classdef WekaClassifier
             fprintf('    done!\n');
         end
                 
-        function person_id = Classify(obj, f)
+        function classified_as = Classify(obj, f)
             scaled_f = ScaleFeatures(obj.featurespace, f);
                         
             cleaner = use_weka; %#ok<NASGU>
@@ -44,18 +44,18 @@ classdef WekaClassifier
             test = prepare_data('test', scaled_f);
             temp_id = wekaClassify(test,obj.nb);
             
-            person_id = zeros([size(temp_id,1),1]);
+            classified_as = zeros([size(temp_id,1),1]);
             
-            for i = 1 : length(person_id)
+            for i = 1 : length(classified_as)
                 temp_str = char(obj.train.classAttribute().value(int32(temp_id(i))));
                 temp_str = temp_str(2:end-1);
-                person_id(i) = str2num(temp_str); %#ok<ST2NM>
+                classified_as(i) = str2num(temp_str); %#ok<ST2NM>
             end            
         end
     end
 end
 
-function data = prepare_data(name, features, varargin)
+function data = prepare_data(name, features, class_selector, varargin)
     numvarargs = length(varargin);
     if numvarargs > 1
         error('prepare_data:TooManyInputs', 'requires at most 1 optional inputs');
@@ -83,7 +83,7 @@ function data = prepare_data(name, features, varargin)
     else
         classes = cell([size(features,1),1]);
         for i = 1 : size(features,1)
-            classes{i} = sprintf('"%d"',files{i}.person);
+            classes{i} = sprintf('"%d"',class_selector(files{i}));
         end
 
         data = [num2cell(features), classes];
